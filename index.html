@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Sleep Survey Log</title>
+  <style>
+    :root {
+      --bg: #121214;
+      --card-bg: #1e1e22;
+      --border: #2e2e34;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --text: #e4e4e7;
+      --muted: #a1a1aa;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+    }
+
+    h1, h2 {
+      margin-top: 0;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .options label {
+      font-weight: normal;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 10px;
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--border);
+      color: var(--text);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .history-item {
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .history-date {
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .history-details {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Morning Sleep Tracker</h1>
+
+  <!-- Survey Form -->
+  <div class="card">
+    <form id="surveyForm">
+      <div class="form-group">
+        <label>1. Where did the restlessness or urge to shift live?</label>
+        <div class="options">
+          <label><input type="checkbox" name="location" value="Lower back / hips"> Lower back / hips</label>
+          <label><input type="checkbox" name="location" value="Legs or calves (restless/twitchy)"> Legs or calves</label>
+          <label><input type="checkbox" name="location" value="Shoulder / neck tension"> Shoulder / neck tension</label>
+          <label><input type="checkbox" name="location" value="General internal alertness"> General internal alertness</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>2. Thermal Micro-Climate (Bed Surface)</label>
+        <select id="thermal" required>
+          <option value="">Select option...</option>
+          <option value="Cool / neutral">Cool / neutral</option>
+          <option value="Warm / clammy under torso">Warm / clammy under torso</option>
+          <option value="Cold upper body / warm underneath">Cold upper body / warm underneath</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>3. Sleep Positions</label>
+        <input type="text" id="posMid" placeholder="Mid-night awakening position (e.g., Stomach)" style="margin-bottom: 8px;">
+        <input type="text" id="posMorning" placeholder="Morning wake-up position (e.g., Side)">
+      </div>
+
+      <div class="form-group">
+        <label>4. Physical Cues Upon Waking</label>
+        <div class="options">
+          <label><input type="checkbox" name="cues" value="Heart beating faster/stronger"> Heart beating faster / stronger</label>
+          <label><input type="checkbox" name="cues" value="Dry mouth / congestion"> Dry mouth / nasal congestion</label>
+          <label><input type="checkbox" name="cues" value="Chilled / shivering"> Chilled / shivering</label>
+          <label><input type="checkbox" name="cues" value="None"> None</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>5. Mid-Night Action & Outcome</label>
+        <select id="action" required>
+          <option value="">Select option...</option>
+          <option value="Fell back asleep quickly">Fell back asleep quickly</option>
+          <option value="Tossed and turned in bed">Tossed and turned in bed</option>
+          <option value="Got out of bed for 15-20 min reset">Got out of bed for 15-20 min reset</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <button type="submit">Submit Morning Survey</button>
+        <button type="button" class="btn-secondary" id="exportBtn">Export JSON Data</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- History View -->
+  <div class="card">
+    <h2>Past Responses</h2>
+    <div id="historyLog">No recorded responses yet.</div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('surveyForm');
+  const historyLog = document.getElementById('historyLog');
+  const exportBtn = document.getElementById('exportBtn');
+
+  // Load saved data on startup
+  document.addEventListener('DOMContentLoaded', displayHistory);
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Gather form values
+    const locations = Array.from(document.querySelectorAll('input[name="location"]:checked')).map(el => el.value);
+    const cues = Array.from(document.querySelectorAll('input[name="cues"]:checked')).map(el => el.value);
+
+    const newEntry = {
+      timestamp: new Date().toLocaleString(),
+      date: new Date().toISOString().split('T')[0],
+      restlessnessLocation: locations.length ? locations : ['None noted'],
+      thermalState: document.getElementById('thermal').value,
+      midnightPosition: document.getElementById('posMid').value || 'Unspecified',
+      morningPosition: document.getElementById('posMorning').value || 'Unspecified',
+      physicalCues: cues.length ? cues : ['None'],
+      nightAction: document.getElementById('action').value
+    };
+
+    // Save to localStorage
+    const existingData = JSON.parse(localStorage.getItem('sleepSurveyLogs')) || [];
+    existingData.unshift(newEntry); // Add newest first
+    localStorage.setItem('sleepSurveyLogs', JSON.stringify(existingData));
+
+    // Reset form & update display
+    form.reset();
+    displayHistory();
+  });
+
+  function displayHistory() {
+    const logs = JSON.parse(localStorage.getItem('sleepSurveyLogs')) || [];
+    if (logs.length === 0) {
+      historyLog.innerHTML = '<p style="color: var(--muted)">No responses logged yet.</p>';
+      return;
+    }
+
+    historyLog.innerHTML = logs.map(entry => `
+      <div class="history-item">
+        <div class="history-date">${entry.timestamp}</div>
+        <div class="history-details">
+          <strong>Location:</strong> ${entry.restlessnessLocation.join(', ')}<br>
+          <strong>Thermal:</strong> ${entry.thermalState}<br>
+          <strong>Positions:</strong> Mid: ${entry.midnightPosition} | Morning: ${entry.morningPosition}<br>
+          <strong>Cues:</strong> ${entry.physicalCues.join(', ')}<br>
+          <strong>Action:</strong> ${entry.nightAction}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Export feature to download local data as JSON
+  exportBtn.addEventListener('click', function() {
+    const data = localStorage.getItem('sleepSurveyLogs') || '[]';
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sleep-survey-history-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+  });
+</script>
+</body>
+</html>
