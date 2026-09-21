@@ -1,20 +1,21 @@
-const CACHE_NAME = 'sleep-tracker-v1';
+const CACHE_NAME = 'sleep-tracker-v2';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json'
 ];
 
-// Install Event - Caches app shell assets
+// Install Event - Caches fresh assets
 self.addEventListener('install', (e) => {
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
-// Activate Event - Clean up old caches
+// Activate Event - Deletes old caches (v1)
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
