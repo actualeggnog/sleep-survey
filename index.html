@@ -61,7 +61,6 @@
       margin-bottom: 12px;
     }
 
-    /* Horizontal Segmented Bar */
     .segmented-group {
       display: flex;
       gap: 6px;
@@ -91,7 +90,6 @@
       transform: scale(1.05);
     }
 
-    /* Grid Chips for Multi-Select */
     .chip-grid {
       display: flex;
       flex-wrap: wrap;
@@ -195,7 +193,6 @@
   <div class="card">
     <form id="surveyForm">
 
-      <!-- 1. Sleep Quality -->
       <div class="section-title">Sleep Quality</div>
       <div class="segmented-group" id="qualityGroup">
         <button type="button" class="segmented-btn" data-val="😖">😖</button>
@@ -205,7 +202,6 @@
         <button type="button" class="segmented-btn" data-val="😴">😴</button>
       </div>
 
-      <!-- 2. Morning Energy -->
       <div class="section-title">Morning Energy</div>
       <div class="segmented-group" id="energyGroup">
         <button type="button" class="segmented-btn" data-val="🪫">🪫</button>
@@ -213,7 +209,6 @@
         <button type="button" class="segmented-btn" data-val="🚀">🚀</button>
       </div>
 
-      <!-- 3. Primary Orientation -->
       <div class="section-title">Primary Position</div>
       <div class="segmented-group" id="orientationGroup">
         <button type="button" class="segmented-btn" data-val="⬆️">⬆️</button>
@@ -223,7 +218,6 @@
         <button type="button" class="segmented-btn" data-val="🔄">🔄</button>
       </div>
 
-      <!-- 4. Awakenings -->
       <div class="section-title">Awakenings</div>
       <div class="segmented-group" id="awakeningsGroup">
         <button type="button" class="segmented-btn selected" data-val="0">0</button>
@@ -232,7 +226,6 @@
         <button type="button" class="segmented-btn" data-val="3+">3+</button>
       </div>
 
-      <!-- 5. Temperature -->
       <div class="section-title">Temperature</div>
       <div class="segmented-group" id="tempGroup">
         <button type="button" class="segmented-btn" data-val="❄️">❄️</button>
@@ -241,7 +234,6 @@
         <button type="button" class="segmented-btn" data-val="🔥">🔥</button>
       </div>
 
-      <!-- 6. Pain & Discomfort Multi-Select -->
       <div class="section-title">Discomfort Points</div>
       
       <div style="font-size: 0.8rem; color: var(--muted); margin-bottom: 6px;">🗣️ Head & Neck</div>
@@ -265,7 +257,6 @@
         <button type="button" class="chip-btn" data-type="pain" data-val="Knees">Knees</button>
       </div>
 
-      <!-- 7. Active Setup Multi-Select -->
       <div class="section-title" style="margin-top: 16px;">🛌 Setup Used</div>
       <div class="chip-grid">
         <button type="button" class="chip-btn" data-type="setup" data-val="Single Pillow">Single Pillow</button>
@@ -283,7 +274,6 @@
     </form>
   </div>
 
-  <!-- History View -->
   <div class="card">
     <div class="section-title">Past Entries</div>
     <div id="historyLog">No recorded logs yet.</div>
@@ -291,7 +281,6 @@
 </div>
 
 <script>
-  // Helper for single-select segmented groups
   function setupSegmentedGroup(groupId) {
     const group = document.getElementById(groupId);
     group.addEventListener('click', (e) => {
@@ -308,7 +297,6 @@
   setupSegmentedGroup('awakeningsGroup');
   setupSegmentedGroup('tempGroup');
 
-  // Multi-select chip toggles
   document.querySelectorAll('.chip-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       btn.classList.toggle('selected');
@@ -344,7 +332,6 @@
     existingData.unshift(newEntry);
     localStorage.setItem('sleepSurveyLogs', JSON.stringify(existingData));
 
-    // Reset multi-select chips
     document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('selected'));
     displayHistory();
   });
@@ -370,7 +357,6 @@
     `).join('');
   }
 
-  // Export CSV
   document.getElementById('exportCsvBtn').addEventListener('click', function() {
     const logs = JSON.parse(localStorage.getItem('sleepSurveyLogs')) || [];
     if (!logs.length) return alert('No data to export!');
@@ -392,7 +378,6 @@
     downloadFile(csvContent, `sleep-log-${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
   });
 
-  // Export JSON
   document.getElementById('exportJsonBtn').addEventListener('click', function() {
     const data = localStorage.getItem('sleepSurveyLogs') || '[]';
     downloadFile(data, `sleep-log-${new Date().toISOString().split('T')[0]}.json`, 'application/json');
