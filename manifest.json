@@ -1,0 +1,21 @@
+{
+  "name": "Morning Sleep Tracker",
+  "short_name": "Sleep Tracker",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121214",
+  "theme_color": "#121214",
+  "description": "Local daily morning sleep maintenance survey and log.",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3094/3094833.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3094/3094833.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

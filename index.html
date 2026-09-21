@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daily Sleep Survey Log</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#121214">
   <style>
     :root {
       --bg: #121214;
@@ -13,6 +15,7 @@
       --primary-hover: #4338ca;
       --text: #e4e4e7;
       --muted: #a1a1aa;
+      --success: #10b981;
     }
 
     body {
@@ -30,9 +33,7 @@
       max-width: 650px;
     }
 
-    h1, h2 {
-      margin-top: 0;
-    }
+    h1, h2 { margin-top: 0; }
 
     .card {
       background-color: var(--card-bg);
@@ -42,9 +43,7 @@
       margin-bottom: 20px;
     }
 
-    .form-group {
-      margin-bottom: 18px;
-    }
+    .form-group { margin-bottom: 18px; }
 
     label {
       display: block;
@@ -65,7 +64,7 @@
       cursor: pointer;
     }
 
-    input[type="text"], textarea, select {
+    input[type="text"], select {
       width: 100%;
       padding: 10px;
       background-color: var(--bg);
@@ -86,9 +85,7 @@
       font-weight: 600;
     }
 
-    button:hover {
-      background-color: var(--primary-hover);
-    }
+    button:hover { background-color: var(--primary-hover); }
 
     .btn-secondary {
       background-color: transparent;
@@ -103,6 +100,7 @@
 
     .actions {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
       margin-top: 20px;
     }
@@ -112,9 +110,7 @@
       padding: 12px 0;
     }
 
-    .history-item:last-child {
-      border-bottom: none;
-    }
+    .history-item:last-child { border-bottom: none; }
 
     .history-date {
       font-weight: bold;
@@ -183,8 +179,9 @@
       </div>
 
       <div class="actions">
-        <button type="submit">Submit Morning Survey</button>
-        <button type="button" class="btn-secondary" id="exportBtn">Export JSON Data</button>
+        <button type="submit">Submit Survey</button>
+        <button type="button" class="btn-secondary" id="exportCsvBtn">Export CSV</button>
+        <button type="button" class="btn-secondary" id="exportJsonBtn">Export JSON</button>
       </div>
     </form>
   </div>
@@ -199,15 +196,12 @@
 <script>
   const form = document.getElementById('surveyForm');
   const historyLog = document.getElementById('historyLog');
-  const exportBtn = document.getElementById('exportBtn');
 
-  // Load saved data on startup
   document.addEventListener('DOMContentLoaded', displayHistory);
 
   form.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // Gather form values
     const locations = Array.from(document.querySelectorAll('input[name="location"]:checked')).map(el => el.value);
     const cues = Array.from(document.querySelectorAll('input[name="cues"]:checked')).map(el => el.value);
 
@@ -222,12 +216,10 @@
       nightAction: document.getElementById('action').value
     };
 
-    // Save to localStorage
     const existingData = JSON.parse(localStorage.getItem('sleepSurveyLogs')) || [];
-    existingData.unshift(newEntry); // Add newest first
+    existingData.unshift(newEntry);
     localStorage.setItem('sleepSurveyLogs', JSON.stringify(existingData));
 
-    // Reset form & update display
     form.reset();
     displayHistory();
   });
@@ -253,16 +245,50 @@
     `).join('');
   }
 
-  // Export feature to download local data as JSON
-  exportBtn.addEventListener('click', function() {
+  // Export CSV
+  document.getElementById('exportCsvBtn').addEventListener('click', function() {
+    const logs = JSON.parse(localStorage.getItem('sleepSurveyLogs')) || [];
+    if (!logs.length) return alert('No data to export!');
+
+    const headers = ["Timestamp", "Date", "Restlessness Location", "Thermal State", "Mid-Night Position", "Morning Position", "Physical Cues", "Night Action"];
+    const rows = logs.map(e => [
+      `"${e.timestamp}"`,
+      `"${e.date}"`,
+      `"${e.restlessnessLocation.join('; ')}"`,
+      `"${e.thermalState}"`,
+      `"${e.midnightPosition}"`,
+      `"${e.morningPosition}"`,
+      `"${e.physicalCues.join('; ')}"`,
+      `"${e.nightAction}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    downloadFile(csvContent, `sleep-survey-${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
+  });
+
+  // Export JSON
+  document.getElementById('exportJsonBtn').addEventListener('click', function() {
     const data = localStorage.getItem('sleepSurveyLogs') || '[]';
-    const blob = new Blob([data], { type: 'application/json' });
+    downloadFile(data, `sleep-survey-${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+  });
+
+  function downloadFile(content, filename, type) {
+    const blob = new Blob([content], { type });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `sleep-survey-history-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = filename;
     a.click();
-  });
+  }
+
+  // Register Service Worker for PWA / Offline Support
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log('Service Worker Registered'))
+        .catch(err => console.log('Service Worker Failed:', err));
+    });
+  }
 </script>
 </body>
 </html>
