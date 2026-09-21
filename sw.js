@@ -1,40 +1,23 @@
-const CACHE_NAME = 'sleep-tracker-v2';
-const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json'
-];
+const CACHE_NAME = 'sleep-tracker-v1';
 
-// Install Event - Caches fresh assets
 self.addEventListener('install', (e) => {
-  self.skipWaiting();
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
-  );
+  self.skipWaiting(); // Instantly activate the new version
 });
 
-// Activate Event - Deletes old caches (v1)
 self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
-  );
+  e.waitUntil(clients.claim()); // Take control of all open tabs immediately
 });
 
-// Fetch Event - Serve from cache when offline
+// Network-first strategy: Try fetching fresh code, fall back to cache if offline
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      return cachedResponse || fetch(e.request).catch(() => caches.match('./index.html'));
-    })
+    fetch(e.request)
+      .then((response) => {
+        // Clone and update cache with the fresh response
+        const resClone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(e.request, resClone));
+        return response;
+      })
+      .catch(() => caches.match(e.request)) // Fallback to cache when offline
   );
 });
