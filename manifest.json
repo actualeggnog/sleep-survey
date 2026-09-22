@@ -8,10 +8,9 @@
   "description": "Daily visual morning sleep maintenance tracker.",
   "icons": [
     {
-      "src": "https://api.iconify.design/lucide:sun-medium.svg?color=%23ffd60a&width=512&height=512",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "https://api.iconify.design/lucide:sun.png?color=%23ffd60a&width=512&height=512&background=%23d8ecff",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }
